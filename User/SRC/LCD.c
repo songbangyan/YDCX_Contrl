@@ -2,9 +2,53 @@
 #include "config.h"
 
 /* Private typedef -----------------------------------------------------------*/
-//extern HZ_TypeDef HZ1[];
-//extern SZ_TypeDef SZ1[];
+void LCD_IOinit(void)
+{
+	GPIO_InitTypeDef GPIO_InitStructure;
 
+	/*Configure PB8 as IC CARD 3V*/
+	/*Configure PB9 as IC CARD 5V*/
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	
+	/*Configure PA11 as BEEP*/
+	/*Configure PA12 as LCD_B*/
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	/*Configure PB12 as LCD CS*/
+	/*Configure PB13 as LCD RST*/
+	/*Configure PB14 as LCD A0*/
+	/*Configure PB15 as LCD SCK*/
+	GPIO_InitStructure.GPIO_Pin =GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	/*Configure PA8 as LCD SDA*/
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	/*Configure PA5 as LED1*/
+	/*Configure PA6 as LED2*/
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6 ;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+
+	/* Configure PA1 as Smartcard INS */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+		
+
+}
 //============================================================================= 
 //函 数 名:  Delay_ms() 
 //功 能：	 软件延时
@@ -84,7 +128,8 @@ void WriteData(u8 Data)
 //返 回 值： 无
 //============================================================================= 
 void InitLCD(void)
-	{
+{
+	LCD_IOinit();		
 	GPIO_LCDRST_ON();
 	Delay_ms(250);
 	GPIO_LCDRST_OFF();
@@ -129,7 +174,7 @@ void InitLCD(void)
 									
 	/*Display ON*/	
 	WriteCommand(0xAF);
-	}
+}
 
 
 //============================================================================= 
@@ -140,17 +185,17 @@ void InitLCD(void)
 //返 回 值:  无
 //============================================================================= 
 void ClearScreen(void)
-	{
+{
 	u8 j,k;
 	for(k=0;k<8;k++)
-		{
+	{
 		WriteCommand(Page_Add+k);
 		WriteCommand(0x10);
 		WriteCommand(0x00);
 		for(j=0;j<132;j++)
 		WriteData(0x00);
-		}
 	}
+}
 
 //============================================================================= 
 //函 数 名: WriteWord() 

@@ -144,7 +144,7 @@ void PendSVC(void)
 *******************************************************************************/
 void SysTickHandler(void)
 {
-	
+	systick++;
 }
 
 /*******************************************************************************
@@ -188,47 +188,8 @@ void TAMPER_IRQHandler(void)
 * Return         : None
 *******************************************************************************/
 void RTC_IRQHandler(void)
-	{
-	if (RTC_GetITStatus(RTC_IT_SEC) != RESET)
-		{
-		/* Clear the RTC Second interrupt */
-		RTC_ClearITPendingBit(RTC_IT_SEC);
-		
-		
-		/* Wait until last write operation on RTC registers has finished */
-		RTC_WaitForLastTask();
-		if(timed != 1)
-			{
-//			Time_Adjust();
-			}
-		/* Reset RTC Counter when Time is 23:59:59 */
-		if (RTC_GetCounter() == 0x00015180)
-			{
-			if(timed)
-				{
-				if(((Now_time.mon==1)||(Now_time.mon==3)||(Now_time.mon==5)||(Now_time.mon==7)||(Now_time.mon==8)||(Now_time.mon==10)||(Now_time.mon==12))&&(Now_time.day>=32))
-					{
-					Now_time.day=1;
-					Now_time.mon++;
-					}
-				else if(((Now_time.mon==4)||(Now_time.mon==6)||(Now_time.mon==9)||(Now_time.mon==11))&&(Now_time.day>=31))
-					{
-					Now_time.day=1;
-					Now_time.mon++;
-					}
-				else if((Now_time.mon==2)&&(Now_time.day>=29))
-					{
-					Now_time.day=1;
-					Now_time.mon++;
-					}				
-				}
-			/* Change the current time */
-			RTC_SetCounter(0);
-			/* Wait until last write operation on RTC registers has finished */
-			RTC_WaitForLastTask();
-			}
-		}
-	}
+{
+}
 
 /*******************************************************************************
 * Function Name  : FLASH_IRQHandler
@@ -271,12 +232,8 @@ void EXTI0_IRQHandler(void)
 * Return         : None
 *******************************************************************************/
 void EXTI1_IRQHandler(void)
-	{
-	/* Clear KEY3 EXTIT Line Pending Bit */
-	EXTI_ClearITPendingBit(EXTI_Line1);
-	CardInserted = 1;
-	lcd_flag = 1;
-	}
+{
+}
 
 /*******************************************************************************
 * Function Name  : EXTI2_IRQHandler
@@ -510,180 +467,8 @@ void TIM1_CC_IRQHandler(void)
 * Return         : None
 *******************************************************************************/
 void TIM2_IRQHandler(void)
-	{
-	if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
-		{
-		/* Clear TIM2 Capture Compare1 interrupt pending bit*/
-		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
-//		GPIO_WriteBit(GPIOA, GPIO_Pin_5, (BitAction)(1 - GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_5)));
-		capture = TIM_GetCapture1(TIM2);
-		TIM_SetCompare1(TIM2, capture + TIME_1S);
-		Lcd_counter++;
-		Data_time++;
-		Alarm_count++;
-		DT_Counter++;
-		if((DT_Counter >= TIMEING)&&(set_time))				//超过TIMEING关闭电表数据接收
-			{
-			set_time = 0;
-			cleardata = 1;
-			}
-		if(Lcd_counter >= LCD_ONTIME)
-			{
-			Lcd_counter = 0;
-			lcd_flag = 0;
-			linktest = 0;
-			}
-		if(Data_time >= DATA_TIMR)
-			{
-			d_start = 0;
-			buffer_flag = 0;
-			RxCounter3 = 0;
-			}
-		if((Alarm_count > ALARM_TURE)&&(alarm_time0))
-			{
-			alarm_time0 = 0;
-			Alarm_count	= 0;
-			}
-		if((Alarm_count > ALARM_FAUSE)&&(!alarm_time0))
-			{
-			alarm_time0 = 1;
-			Alarm_count	= 0;
-			}
-		}
-	else if (TIM_GetITStatus(TIM2, TIM_IT_CC2) != RESET)
-		{
-		/* Clear TIM2 Capture Compare2 interrupt pending bit*/
-		TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
-		capture = TIM_GetCapture2(TIM2);
-		TIM_SetCompare2(TIM2, capture + TIME_250MS);
-		if(alarm_time)											//警报处理
-			{
-			if(alarm_flg!=0)
-				{
-				if((alarm_canc)||(!alarm_time0))
-					{
-					GPIO_BEEP_OFF();
-					GPIO_ALED_0N_OFF();
-					}
-				else
-					{
-					GPIO_BEEP_0N_OFF();
-					GPIO_ALED_0N_OFF();
-					}
-				}
-			}
-		else if(alarm_flg!=0)
-			{
-			GPIO_ALED_0N_OFF();
-			}		
-		}
-	else if (TIM_GetITStatus(TIM2, TIM_IT_CC3) != RESET)
-		{
-		/* Clear TIM2 Capture Compare3 interrupt pending bit*/
-		TIM_ClearITPendingBit(TIM2, TIM_IT_CC3);
-		capture = TIM_GetCapture3(TIM2);
-		TIM_SetCompare3(TIM2, capture + TIME_25MS);		
-		lcd_refur = 1;
-		}
-	if (TIM_GetITStatus(TIM2, TIM_IT_CC4) != RESET)
-		{
-		/* Clear TIM2 Capture Compare4 interrupt pending bit*/
-		TIM_ClearITPendingBit(TIM2, TIM_IT_CC4);
-		capture = TIM_GetCapture4(TIM2);
-		TIM_SetCompare4(TIM2, capture + TIME_10MS); 
-//		cont++;
-//		if(cont == 20)
-//			{
-//			cont = 0;
-//			GPIO_COMLED_0N_OFF();
-//			}
-		if((GPIO_KEYU_F())&&(key_up == 1))										    //向上键处理
-			{
-			linktest = 0;
-			KeyU_count++;
-			Lcd_counter = 0;
-			}  
-		if(KeyU_count >= KEYDELAY)
-			{
-			if(lcd_flag == 1)
-				{			
-				KeyU_count = 0;
-				Key_value++;
-				key_plus = 1;
-				Key0_value = 0;
-				key_up = 0;
-				Page_dis++;
-				}
-			else
-				{
-				lcd_flag = 1;
-				KeyU_count = 0;
-				key_plus = 1;
-				Key0_value = 0;
-				Key_value = 0;
-				key_up = 0;
-				}
-			}
-		if((GPIO_KEYD_F())&&(key_up == 1))										 //向下键处理
-			{
-			linktest = 0;
-			KeyD_count++;
-			Lcd_counter = 0;
-			}
-		if(KeyD_count >= KEYDELAY)
-			{
-			if(lcd_flag == 1)
-				{
-				KeyD_count = 0;
-				Key_value--;
-				key_plus = 0;
-				Key0_value = 0;
-				key_up = 0;
-				Page_dis--;			
-				}
-			else
-				{
-				lcd_flag = 1;
-				KeyD_count = 0;
-				key_plus = 0;
-				Key0_value = 0;
-				Key_value = 0;
-				key_up = 0;
-				}
-			} 
-		if((GPIO_KEYQ_F())&&(key_up == 1))										   //确认键处理
-			{
-			lcd_flag = 1;
-			linktest = 0;
-			KeyQ_count++;
-			KeyQ1_count++;
-			}
-		if(KeyQ_count == CANCALALARMTIME)					   
-			{
-			Key0_value = 0xff;	
-			}
-		if(KeyQ1_count >= KEYLONG)
-			{
-			Key0_value = 0x55;
-			KeyQ1_count = 0;
-			Lcd_counter = 0;
-			key_up = 0;
-			}
-		if((GPIO_KEYU_T())&&(GPIO_KEYD_T())&&(GPIO_KEYQ_T())) 					//按键释放处理
-			{
-			Key_upcount++;
-			}
-		if(Key_upcount >= 0x03)
-			{
-			key_up = 1;
-			KeyU_count = 0;
-			KeyD_count = 0;
-			KeyQ_count = 0;
-			KeyQ1_count = 0;
-			Key_upcount = 0; 
-			}
-		}
-	}
+{
+}
 
 /*******************************************************************************
 * Function Name  : TIM3_IRQHandler
@@ -781,24 +566,8 @@ void SPI2_IRQHandler(void)
 * Return         : None
 *******************************************************************************/
 void USART1_IRQHandler(void)
-	{ 
-	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
-		{
-		/* Read one byte from the receive data register */
-		RxBuffer1[RxCounter1++] = USART_ReceiveData(USART1);	      
-		}
-  
-	if(USART_GetITStatus(USART1, USART_IT_TXE) != RESET)
-		{   
-		/* Write one byte to the transmit data register */
-		USART_SendData(USART1, TxBuffer1[TxCounter1++]); 
-		if(TxCounter1 >= MaxNbrofTx1)
-		    {				
-		    /* Disable the USART1 Transmit interrupt */
-			USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
-		    }    
-		}
-	}
+{ 
+}
 
 /*******************************************************************************
 * Function Name  : USART2_IRQHandler
@@ -808,33 +577,8 @@ void USART1_IRQHandler(void)
 * Return         : None
 *******************************************************************************/
 void USART2_IRQHandler(void)
-	{
-	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
-		{
-		/* Read one byte from the receive data register */
-		RxBuffer2[RxCounter2++] = USART_ReceiveData(USART2);
-		}
-	if(USART_GetITStatus(USART2, USART_IT_TXE) != RESET)
-		{   
-		/* Write one byte to the transmit data register */
-		USART_SendData(USART2, TxBuffer2[TxCounter2++]); 
-		if(TxCounter2 >= MaxNbrofTx2)
-		    {				
-		    /* Disable the USART1 Transmit interrupt */
-			USART_ITConfig(USART2, USART_IT_TXE, DISABLE);
-		    }    
-		}
-	/* If the USART2 detects a parity error */
-	if(USART_GetITStatus(USART2, USART_IT_PE) != RESET)
-		{
-		while(USART_GetFlagStatus(USART2, USART_FLAG_RXNE) == RESET)
-			{
-			}
-		/* Clear the USART2 Parity error pending bit */
-		USART_ClearITPendingBit(USART2, USART_IT_PE);
-		USART_ReceiveData(USART2);
-		}
-	}
+{
+}
 
 /*******************************************************************************
 * Function Name  : USART3_IRQHandler
@@ -844,43 +588,8 @@ void USART2_IRQHandler(void)
 * Return         : None
 *******************************************************************************/
 void USART3_IRQHandler(void)
-	{
-	if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
-		{
-		GPIO_COMLED_ON();
-		/* Read one byte from the receive data register */
-		RxBuffer3[RxCounter3++] = USART_ReceiveData(USART3);
-		if((RxBuffer3[RxCounter3-1] == HEAD)||(1 == d_start))
-			{
-			d_start = 1;
-			}
-		else if((RxBuffer3[RxCounter3] != HEAD)&&(0 == d_start))
-			{
-			RxCounter3 = 0;
-			}
-		if(RxCounter3 == 0x0a)
-			{
-			D_len = RxBuffer3[9]+12;
-			}
-		if(RxCounter3 == D_len)
-			{
-			buffer_flag = 1;
-			}	      
-		Data_time = 0;
-		GPIO_COMLED_OFF();
-		}
-  
-	if(USART_GetITStatus(USART3, USART_IT_TXE) != RESET)
-		{   
-		/* Write one byte to the transmit data register */
-		USART_SendData(USART3, TxBuffer3[TxCounter3++]); 
-		if(TxCounter3 >= MaxNbrofTx3)
-		    {				
-		    /* Disable the USART1 Transmit interrupt */
-			USART_ITConfig(USART3, USART_IT_TXE, DISABLE);
-		    }    
-		}
-	}
+{
+}
 
 
 /*******************************************************************************

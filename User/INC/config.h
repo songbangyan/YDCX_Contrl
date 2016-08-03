@@ -193,7 +193,7 @@ typedef struct
 EXT_  HZ_TypeDef HZ1[];
 EXT_  SZ_TypeDef SZ1[];
 
-EXT_ unsigned int systick;	
+EXT_ volatile unsigned int systick;	
 
 EXT_ u8 Now_Time[3];
 EXT_ u8 Start_T[2];
@@ -206,7 +206,6 @@ EXT_ Key_Value Key_Up;
 EXT_ Key_Value Key_Down;
 EXT_ Key_Value Key_Ent;
 EXT_ u8 KeyValueFor;
-	
 
 EXT_ u8 Lcd_counter;			//LCD关闭计数器 
 
@@ -215,18 +214,11 @@ EXT_ u8 Lcd_counter;			//LCD关闭计数器
 
 /*******Init功能函数区*************/ 
 void RCC_Configuration(void);
-void GPIO_Configuration(void);
 void IWDG_Configuration(void);
 void SysTick_Configuration(void);
 
 
 
-/*******UART功能函数区*************/
-void ISO7816_Disable(void);
-void ISO7816_Enable(void);
-void USART1send(u8 *buffer,u8 len);
-void USART2send(u8 *buffer,u8 len);
-void USART3send(u8 *buffer,u8 len);
 
 
 
@@ -242,12 +234,11 @@ void WriteLine(u8 x, u8 y, u8 index);
 
 
 /********数据处理功能函数***********************/
-
-
 void Delay(vu32 nCount);
 u8 Hex2Bcd(u8 b);
 u8 Bcd2Hex(u8 b);
 /********按键及显示处理功能函数*******************/
+void KEY_Init(void);
 
 void LCDrefur(void);
 

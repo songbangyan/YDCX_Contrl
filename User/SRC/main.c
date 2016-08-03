@@ -514,7 +514,7 @@ void Delay(vu32 nCount)
 * Return         : None
 *******************************************************************************/
 int main(void)
-	{
+{
 	u8 temp,i;
 //	u8 No[100]={0};
 //	InitQue(&RxQUE3);
@@ -527,169 +527,22 @@ int main(void)
 	/* System Clocks Configuration */
 	RCC_Configuration();
 
-	/* Configure the GPIO ports */
-	GPIO_Configuration();
-
-	/* Configure the EXTI Controller */
-	EXTI_Configuration();
-
-	/*USART and UART configuration*/
-	USART_Configuration();
-
-	/*TIM configuration*/
-	TIM_Configuration();
-
-	/* NVIC configuration */
-	NVIC_Configuration();
-
-	GPIO_ZBRST_ON();
 	GPIO_BEEP_OFF();
 	/* Shutdown Smart Card Port */  
 	GPIO_5V_OFF();
 	GPIO_3V_OFF();
-	ISO7816_Disable(); 
 
 	GPIO_COMLED_OFF();
 	GPIO_ALED_OFF();
 	GPIO_ZBRST_OFF();
 	GPIO_LCDBL_ON();
-//	timing_flag = 0;
-	lcd_flag = 1;
-	temp = (*(vu32*) (StartAddr+OFFSET_JL));							//警报按键解除判断
-	if(0x55 == temp)
-		{
-		alarm_canc = 1;
-		}
-	else
-		{
-		alarm_canc = 0;
-		}
-	for(i=0;i<6;i++)
-		{
-		DX_Addr[i]=(*(vu32*) (StartAddr+i));							 //读取已存电表号码
-		}
-	if((((DX_Addr[0]>>4)<=0x09)&&((DX_Addr[0]&0x0f)<=0x09)))
-		{
-		dbaddrtrue = 1;
-		}
-	else
-		{
-		dbaddrtrue = 0;
-		}
-	lcd_refur = 1;
-	sys_start = 1;
-//	feeddog = 1;
 	InitLCD();
 	ClearScreen();
 	/* Infinite loop */	
 	while(1)
-		{
-//		Delay(0x1fffff);
-//		lcd_flag = 1;
-//		lcd_refur = 1;
-//		Dis_test1();
-//		LCDrefur();	
-//		Delay(0x1fffff);
-//		lcd_flag = 1;
-//		lcd_refur = 1;
-//		Dis_test2();
-//		LCDrefur();		
-//		Delay(0x1fffff);
-//		lcd_flag = 1;
-//		lcd_refur = 1;
-//		Dis_test3();
-//		LCDrefur();		
-//		Delay(0x1fffff);
-//		lcd_flag = 1;
-//		lcd_refur = 1;
-//		Dis_test4();
-//		LCDrefur();		
-//		}
-		Delay(0xfffff);		
-//		while(1);
-//		lcd_flag = 1;
-		if(lcd_refur&&lcd_flag)
-			{
-			lcd_refur = 0;
-			if(1 == CardInserted)
-				{
-				CardInserted = 0;
-				if(GPIO_CARDIN())
-					{
-					Dis_readcard();
-					LCDrefur();	
-					ReadSC();
-//					ReadSC1();
-					Key_value = 0;
-					}
-				else
-					{
-					ISO7816_Disable();
-					GPIO_5V_OFF();
-					GPIO_3V_OFF();
-					}
-				}
-			if(linktest)
-				{
-//				LCD_shutup();
-				Dis_Link();
-				}
-			else
-				{
-				if(0x55 == Key0_value)
-					{
-//					LCD_shutup();
-					Dis_NowTime();
-					}
-				else
-					{
-					if((X_DTime[0] != BESET)||(0 == dbaddrtrue))
-						{
-						Page_dis = 0;
-						}
-					Key_deal();
-					}								
-				}
-			LCDrefur();
-			}
-		if(buffer_flag)
-			{
-			BagPack();
-			}
-		if(changedata == 1)
-			{
-			changedata = 0;
-			Change_Dis();
-			}
-		if(cleardata == 1)
-			{
-			ClearData();
-			cleardata = 0;
-			}
-		if(lcd_flag == 0)
-			{
-			LCD_shutdown();
-			Key_value = 0;
-			Key0_value = 0;
-			Page_dis = 0;
-			sys_start = 1;
-			}
-		if((0xff == Key0_value)&&(alarm_flg!=0)&&(alarm_canc == 0))
-			{
-			Alarm_reg();
-			Key0_value = 0x00;
-			}
-		if((Now_time.hour <= ALARMEND)&&(Now_time.hour >= ALARMSTART))
-			{
-			alarm_time = 1;
-			}
-		else
-			{
-			alarm_time = 0;
-			GPIO_BEEP_OFF();
-			}
-		}
+	{
 	}
+}
 
 
 

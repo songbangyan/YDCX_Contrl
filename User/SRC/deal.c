@@ -1,5 +1,21 @@
 #include "config.h"
 
+
+void KEY_Init(void)
+{
+	GPIO_InitTypeDef GPIO_InitStructure;
+	
+	/* Configure PB0 as KEY1 */
+	/* Configure PB1 as KEY2 */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+		
+	/* Configure PA7 as KEY3 */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);		
+}
 void HourPlus(unsigned char hour)
 {
   hour++;
