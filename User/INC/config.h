@@ -6,15 +6,13 @@
 #define	VERL 0x53			//版本号低位
 #define	VERH 0x34			//版本号高位
 
-#define	ALRV 10			//告警金额
 
-
+#define 	ON 1
+#define 	OFF 0
 #define		MAXNUMOFHZ	101
 #define		MAXNUMOFSZ	75
 #define		MAXOFRXQ	0xFF
-//#define	 	KEYDELAY 	0x01
-#define	 	MAXBUFFER 		0xFF
-#define 	CANCALALARMTIME 0x0a		//警报解除时间
+
 #define		KEYDELAY		20		//按键消抖时间
 #define		KEYPRE		  50
 #define		KEYLONG			0x40		//2S
@@ -33,29 +31,10 @@
 #define		KEYV_EM		  6  //结束时间的分
 
 
-#define		BESET	0xAA
-
 #define FLASH_PAGE_SIZE    ((u16)0x400)
 #define StartAddr  ((u32)0x0800FC00)
 #define EndAddr    ((u32)0x08010000)
 
-#define OFFSET_BH    0x00
-#define OFFSET_KEY   0x20
-#define OFFSET_JL	 0x30
-#define OFFSET_JLL	 0x08
-
-#define ALARMSTART 	7				//报警开始时间
-#define ALARMEND	21				//报警结束时间
-
-#define LCD_ONTIME 30			 	//LCD点亮时间 /秒
-#define TIMEING	   30			 	//等待数据时间 /秒
-#define DATA_TIMR  3			 	//数据有效期 /秒
-#define ALARM_TURE	5				//闹铃时长 5S
-#define	ALARM_FAUSE	10				//闹铃间隔时间 10S
-
-#define	OFFSET	0x33			 	//数据自身的偏移量
-#define ALAEM_CAC	0x55		 	//警报解除BY按键
-#define ALAEM_CACJ	0x88		 	//警报解除BY充值
 
 #define	HANZI	16
 #define	ZIMU	8
@@ -119,6 +98,8 @@
 #define	GPIO_COMLED_OFF()	GPIO_ResetBits(GPIOA, GPIO_Pin_6)
 #define	GPIO_COMLED_0N_OFF()	GPIO_WriteBit(GPIOA, GPIO_Pin_6, (BitAction)(1 - GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_6)))
 
+#define	GPIO_INS_ON()		GPIO_SetBits(GPIOA, GPIO_Pin_1)
+#define	GPIO_INS_OFF()	GPIO_ResetBits(GPIOA, GPIO_Pin_1)
 
 
 #define	GPIO_IO_1()			GPIO_SetBits(GPIOA, GPIO_Pin_0)
@@ -136,45 +117,22 @@
 #define	GPIO_KEYQ_T()		1==GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_7)
 #define	GPIO_KEYQ_F()		0==GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_7)
 
-#define	GPIO_CARDIN()		0==GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_1)			
-#define	GPIO_CARDOUT()		1==GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_1)
+//#define	GPIO_CARDIN()		0==GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_1)			
+//#define	GPIO_CARDOUT()		1==GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_1)
 
-/************协议命令字*******************/
-#define	HEAD	0xa8				//起始字
-#define	END		0x16				//结束符
-#define CON0	0x00				//功能0：确认/否认
-#define CON1	0x01				//功能1：复位
-#define CON2	0x02				//功能2：设置信息
-#define	CON3	0x03				//功能3：读取设置信息
-#define CON4	0x04				//功能4：电表数据
-#define CON5	0x05				//功能5：连路测试
-#define CON6	0x06				//功能6：读取事件记录
 
-#define D_FEILV		0x34			//费率电价
-#define	D_ZHUANGTAI	0x35			//电表状态字
-#define	D_DANGQBM	0x36			//当前表码
-#define	D_SHENGYD	0x37			//当前剩余电量
-#define	D_SHENGYJ	0x38			//当前剩余金额
-#define	D_ZONGGDC	0x39		    //总购电次数
-#define D_LASTGT	0x3a		    //最后一次购电时间
-#define D_DANGQLJD	0x3b		    //当前结算累计用电量
-#define	D_SHANGZQD  0x3c		    //上一周期结算累计用电量
-#define	D_LEIJGD 	0x3d		    //累计购电量
-#define	D_LASTGDJ	0x3e			//最后一次购电金额
-#define	D_LEIJG		0x3f			//累计购电金额
-#define	D_JTDJ		0x40			//当前阶梯电价
 
 typedef struct typFNT_GB12      	// 汉字字模数据结构
-	{
+{
 	u8 Index[2];              	 	// 汉字内码索引
 	u8 Msk[32];             		// 点阵码数据
-	}HZ_TypeDef;
+}HZ_TypeDef;
 
 typedef struct typFNT_GB6           //字母字模数据结构
-	{
-	u8 Index[1];               	 	//字母内码索引
+{
+	u8 Index;               	 	//字母内码索引
 	u8 Msk[16];              	 	// 点阵码数据
-	}SZ_TypeDef;
+}SZ_TypeDef;
 
 typedef struct
 {
@@ -183,7 +141,21 @@ typedef struct
 	unsigned char En;
 }Key_Value;
 
-	
+typedef struct
+{
+	unsigned char Lcd_ON_OFF:1;  //LCD是否显示的开关
+	unsigned char Lcd_ref:1;		//LCD刷新开关
+	unsigned char Lcd_tog:1;		//LCD存在需要消隐
+	unsigned char Check_save:1;
+	unsigned char Reserved:4;
+}Sys_flag;
+
+typedef struct
+{
+	unsigned char hour;
+	unsigned char min;
+	unsigned char sec;
+}Time_t;
 #ifdef  root
 	#define EXT_ 
 #else
@@ -194,10 +166,10 @@ EXT_  HZ_TypeDef HZ1[];
 EXT_  SZ_TypeDef SZ1[];
 
 EXT_ volatile unsigned int systick;	
-
-EXT_ u8 Now_Time[3];
-EXT_ u8 Start_T[2];
-EXT_ u8 End_T[2];
+EXT_ Sys_flag sys_flag;
+EXT_ Time_t Now_Time;
+EXT_ Time_t Start_T;
+EXT_ Time_t End_T;
 	
 
 EXT_ u8	LCD_old[8][128];
@@ -207,8 +179,9 @@ EXT_ Key_Value Key_Down;
 EXT_ Key_Value Key_Ent;
 EXT_ u8 KeyValueFor;
 
-EXT_ u8 Lcd_counter;			//LCD关闭计数器 
-
+EXT_ u16 Lcd_offcounter;			//LCD关闭计数器 
+EXT_ u8 Lcd_togcount;
+EXT_ u8 Lcd_refcount;
 
 
 
@@ -220,27 +193,34 @@ void SysTick_Configuration(void);
 
 
 
-
-
+unsigned char RTC_Set(unsigned char hour,unsigned char min,unsigned char sec);
+unsigned char RTC_Get(Time_t *rtc_real);
+unsigned char Tick2time(unsigned int tick, Time_t *rtc_real);
+unsigned int Time2tick(Time_t *rtc_real);
 /*******LCD功能函数区*************/
 void InitLCD(void);
 void ClearScreen(void);
 void WriteWord(u8 x, u8 y, u8 index[2]);
-void WriteASCII(u8 x, u8 y, u8 index[1]);
+void WriteASCII(u8 x, u8 y, u8 index);
 void WriteBCD(u8 x, u8 y, u8 index);
 void LCD_shutdown(void);
 void LCD_shutup(void);
 void WriteLine(u8 x, u8 y, u8 index);
+void Displaytog(unsigned char x,unsigned char y,unsigned char size);
 
-
+void SysTickDeal(void);
+void SaveTime(void);
+void SysPowerOn(void);
+void CheckTime(void);
 /********数据处理功能函数***********************/
 void Delay(vu32 nCount);
 u8 Hex2Bcd(u8 b);
 u8 Bcd2Hex(u8 b);
 /********按键及显示处理功能函数*******************/
 void KEY_Init(void);
-
+void Check_Key(void);
+	
 void LCDrefur(void);
-
+void Dismain(void);
 #endif
 

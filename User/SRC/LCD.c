@@ -44,7 +44,7 @@ void LCD_IOinit(void)
 
 	/* Configure PA1 as Smartcard INS */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 		
 
@@ -205,36 +205,30 @@ void ClearScreen(void)
 //返 回 值:  无
 //============================================================================= 
 void WriteWord(u8 x, u8 y, u8 index[2])
-	{
+{
 	u8 *p;
 	u8 j, i;
 	j=0;
 	for(i=0;i<MAXNUMOFHZ;i++)
-		{
+	{
 		if((HZ1[i].Index[1] == index[1])&&(HZ1[i].Index[0] == index[0]))
-			{
+		{
 			p=HZ1[i].Msk;
 			break;
-			}
 		}
-	if(i == MAXNUMOFHZ)
-		{
-		p=HZ1[0].Msk;
-		}
-	for(j=0;j<2;j++)				// 整个字符分上下半部分字符
-		{
-//		lie=y&0xf0;
-//		lie>>=4;
-//		WriteCommand(Page_Add+x+j);
-//		WriteCommand(Row_AddH+lie);
-//		WriteCommand(Row_AddL+y&0x0f);
-		for(i=0;i<16;i++)
-			{
-			LCD_old[x+j][y+i] = p[16*j+i] ;
-//			WriteData(p[16*j+i]);	
-			}
-		}	
 	}
+	if(i == MAXNUMOFHZ)
+	{
+		p=HZ1[0].Msk;
+	}
+	for(j=0;j<2;j++)				// 整个字符分上下半部分字符
+	{
+		for(i=0;i<16;i++)
+		{
+			LCD_old[x+j][y+i] = p[16*j+i];
+		}
+	}	
+}
 
 
 //============================================================================= 
@@ -244,38 +238,32 @@ void WriteWord(u8 x, u8 y, u8 index[2])
 //出口参数:  无
 //返 回 值:  无
 //============================================================================= 
-void WriteASCII(u8 x, u8 y, u8 index[1])
-	{
+void WriteASCII(u8 x, u8 y, u8 index)
+{
 	u8 j,i;
 	u8 *p;
 	j=0;
 	i=0;
 	for(i=0;i<MAXNUMOFSZ;i++)
+	{
+		if(SZ1[i].Index == index)
 		{
-		if((SZ1[i].Index[0] == index[0]))
-			{
 			p=SZ1[i].Msk;
 			break;
-			}
 		}
-	if(i == MAXNUMOFSZ)
-		{
-		p=SZ1[0].Msk;
-		}
-	for(j=0;j<2;j++)				// 整个字符分上下半部分字符
-		{
-//		lie=y&0xf0;
-//		lie>>=4;
-//		WriteCommand(Page_Add+x+j);
-//		WriteCommand(Row_AddH+lie);
-//		WriteCommand(Row_AddL+y&0x0f);
-		for(i=0;i<8;i++)
-			{
-			LCD_old[x+j][y+i] = p[8*j+i];
-//			WriteData(p[8*j+i]);	
-			}
-		} 
 	}
+	if(i == MAXNUMOFSZ)
+	{
+		p=SZ1[0].Msk;
+	}
+	for(j=0;j<2;j++)				// 整个字符分上下半部分字符
+	{
+		for(i=0;i<8;i++)
+		{
+			LCD_old[x+j][y+i] = p[8*j+i];
+		}
+	} 
+}
 //============================================================================= 
 //函 数 名: WriteBCD() 
 //功 能: 	写一个点阵为12*6的数字
@@ -284,25 +272,18 @@ void WriteASCII(u8 x, u8 y, u8 index[1])
 //返 回 值:  无
 //============================================================================= 
 void WriteBCD(u8 x, u8 y, u8 index)
-	{
+{
 	u8 j,i;
 	u8 *p;
-//	u8 lie;
 	p=SZ1[index].Msk;
 	for(j=0;j<2;j++)				// 整个字符分上下半部分字符
-		{
-//		lie=y&0xf0;
-//		lie>>=4;
-//		WriteCommand(Page_Add+x+j);
-//		WriteCommand(Row_AddH+lie);
-//		WriteCommand(Row_AddL+y&0x0f);
+	{
 		for(i=0;i<8;i++)
-			{
+		{
 			LCD_old[x+j][y+i] = p[8*j+i];
-//			WriteData(p[8*j+i]);	
-			}
 		}
 	}
+}
 //============================================================================= 
 //函 数 名: LCDrefur() 
 //功 能: 	刷新LCD
@@ -311,44 +292,57 @@ void WriteBCD(u8 x, u8 y, u8 index)
 //返 回 值:  无
 //============================================================================= 
 void LCDrefur(void)	
-	{
+{
 	u8 i,j;
 	LCD_shutup();
 	for(i=0;i<8;i++)
+	{
+		WriteCommand(Page_Add+i);
+		WriteCommand(Row_AddH);
+		WriteCommand(Row_AddL); 
+		for(j=0;j<128;j++)
 		{
-        WriteCommand(Page_Add+i);
-        WriteCommand(Row_AddH);
-        WriteCommand(Row_AddL); 
-        for(j=0;j<128;j++)
-			{
 			WriteData(LCD_old[i][j]);
-			}
 		}
 	}
+}
+
 //============================================================================= 
-//函 数 名: WriteLine() 
-//功 能: 	写一个点阵为12*6的数字
-//入口参数:  x y位置，index为BCD码
+//函 数 名: Displaytog(unsigned char x,unsigned char y,unsigned char size)
+//功 能: 	指定的地方进行闪烁
+//入口参数: x:显示屏的横向位置
+//					y:显示屏的竖直位置
+//					size:大小，是一个汉字还是英文
 //出口参数:  无
 //返 回 值:  无
 //============================================================================= 
-void WriteLine(u8 x, u8 y, u8 index)
+void Displaytog(unsigned char x,unsigned char y,unsigned char size)
+{
+	u8 *p;
+	u8 j, i;
+	if(size == HANZI)
 	{
-	u8 j,i;
-	u8 lie;
-	for(j=0;j<2;j++)				// 整个字符分上下半部分字符
+		p = HZ1[101].Msk;
+		for(j=0;j<2;j++)				// 整个字符分上下半部分字符
 		{
-		lie=y&0xf0;
-		lie>>=4;
-		WriteCommand(Page_Add+x+j);
-		WriteCommand(Row_AddH+lie);
-		WriteCommand(Row_AddL+y&0x0f);
-		for(i=0;i<8;i++)
+			for(i=0;i<16;i++)
 			{
-			WriteData(index);	
+				LCD_old[x+j][y+i] = p[16*j+i];
 			}
-		}
+		}				
 	}
+	else
+	{
+		p = SZ1[10].Msk;
+		for(j=0;j<2;j++)				// 整个字符分上下半部分字符
+		{
+			for(i=0;i<8;i++)
+			{
+				LCD_old[x+j][y+i] = p[8*j+i];
+			}
+		} 					
+	}
+}
 
 //============================================================================= 
 //函 数 名: LCD_shutup(); 

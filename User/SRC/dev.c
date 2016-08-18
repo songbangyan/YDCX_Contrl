@@ -90,7 +90,7 @@ void RCC_Configuration(void)
 * Return         : None
 *******************************************************************************/
 void IWDG_Configuration(void)
-	{
+{
 	/* Enable the LSI OSC */
 	RCC_LSICmd(ENABLE);
 	/* Wait till LSI is ready */
@@ -113,7 +113,7 @@ void IWDG_Configuration(void)
 	
 	/* Enable IWDG (the LSI oscillator will be enabled by hardware) */
 	IWDG_Enable();	
-	}
+}
 
 /*******************************************************************************
 * Function Name  : SysTick_Configuration
