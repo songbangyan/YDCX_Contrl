@@ -135,6 +135,7 @@ void Check_Key(void)
     {
       if((systick - Key_Up.Start_t) > KEYDELAY)
       {
+				Key_Up.Start_t = systick;
         DealKeyup();        
       }        
     }else
@@ -154,7 +155,8 @@ void Check_Key(void)
     {
       if((systick - Key_Down.Start_t) > KEYDELAY)
       {
-        DealKeyup();
+				Key_Down.Start_t = systick;
+        DealKeydown();
       }        
     }else
     {
@@ -173,6 +175,7 @@ void Check_Key(void)
     {
       if((systick - Key_Ent.Start_t) > KEYDELAY)
       {
+				Key_Ent.Start_t = systick;
         DealKeyent();
       }        
     }else
@@ -226,14 +229,17 @@ void SysTickDeal(void)
 		Lcd_refcount ++;
 		if(Lcd_togcount >= 200)
 		{
+			Lcd_togcount = 0;
 			sys_flag.Lcd_tog = ON;
 		}
 		if(Lcd_refcount >= 200)
 		{
+			Lcd_refcount = 0;
 			sys_flag.Lcd_ref = ON;
 		}
 		if(Lcd_offcounter >= 20000)
 		{
+			Lcd_offcounter = 0;
 			KeyValueFor = KEYV_DE;
 			sys_flag.Lcd_ON_OFF = OFF;
 			sys_flag.Check_save = ON;
