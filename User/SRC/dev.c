@@ -125,7 +125,7 @@ void IWDG_Configuration(void)
 void SysTick_Configuration(void)
 {
   /* Setup SysTick Timer for 1 msec interrupts  */
-  if (SysTick_Config(SystemCoreClock/100000))
+  if (SysTick_Config(SystemCoreClock/1000))
   { 
     /* Capture error */ 
     while (1);

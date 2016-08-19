@@ -27,27 +27,27 @@ void Keypress(void)
 		sys_flag.Lcd_togold = OFF;		
 	}else if(KeyValueFor != KEYV_DE)
 	{
-		sys_flag.Lcd_tog = ON;
-		sys_flag.Lcd_togold = ON;
 	}
 	Lcd_offcounter = 0;
 }
 
-void HourPlus(unsigned char hour)
+unsigned char HourPlus(unsigned char hour)
 {
   hour++;
   if(hour > 23)
   {
     hour = 0;
   }
+  return hour;
 }
-void MinPlus(unsigned char min)
+unsigned char MinPlus(unsigned char min)
 {
   min++;
   if(min > 59)
   {
     min = 0;
   }
+  return min;
 }
 
 void DealKeyup(void)
@@ -55,43 +55,47 @@ void DealKeyup(void)
   switch(KeyValueFor)
   {
     case(KEYV_NH):
-      HourPlus(Now_Time.hour);
+      Now_Time.hour = HourPlus(Now_Time.hour);
+      RTC_Set(Now_Time.hour,Now_Time.min,Now_Time.sec);  
       break;    
     case(KEYV_SH):
-      HourPlus(Start_T.hour);
+      Start_T.hour = HourPlus(Start_T.hour);
       break;        
     case(KEYV_EH):
-      HourPlus(End_T.hour);
+      End_T.hour = HourPlus(End_T.hour);
       break; 
     case(KEYV_NM):
-      MinPlus(Now_Time.min);
+      Now_Time.min = MinPlus(Now_Time.min);
+      RTC_Set(Now_Time.hour,Now_Time.min,Now_Time.sec);  
       break;    
     case(KEYV_SM):
-      MinPlus(Start_T.min);
+      Start_T.min = MinPlus(Start_T.min);
       break;        
     case(KEYV_EM):
-      MinPlus(End_T.min);
+      End_T.min = MinPlus(End_T.min);
       break; 
 		default:
 			break;
 
   }
 }
-void HourDec(unsigned char hour)
+unsigned char HourDec(unsigned char hour)
 {
   hour--;
   if(hour > 23)
   {
     hour = 23;
   }
+  return hour;
 }
-void MinDec(unsigned char min)
+unsigned char MinDec(unsigned char min)
 {
   min++;
   if(min > 59)
   {
     min = 59;
   }
+  return min;
 }
 
 void DealKeydown(void)
@@ -99,22 +103,24 @@ void DealKeydown(void)
   switch(KeyValueFor)
   {
     case(KEYV_NH):
-      HourDec(Now_Time.hour);
+      Now_Time.hour = HourDec(Now_Time.hour);
+      RTC_Set(Now_Time.hour,Now_Time.min,Now_Time.sec);  
       break;    
     case(KEYV_SH):
-      HourDec(Start_T.hour);
+      Start_T.hour = HourDec(Start_T.hour);
       break;        
     case(KEYV_EH):
-      HourDec(End_T.hour);
+      End_T.hour = HourDec(End_T.hour);
       break; 
     case(KEYV_NM):
-      MinDec(Now_Time.min);
+      Now_Time.min = MinDec(Now_Time.min);
+      RTC_Set(Now_Time.hour,Now_Time.min,Now_Time.sec);  
       break;    
     case(KEYV_SM):
-      MinDec(Start_T.min);
+      Start_T.min = MinDec(Start_T.min);
       break;        
     case(KEYV_EM):
-      MinDec(End_T.min);
+      End_T.min = MinDec(End_T.min);
       break; 
 		default:
 			break;
@@ -125,75 +131,95 @@ void DealKeydown(void)
 void DealKeyent(void)
 {
   KeyValueFor++;
+  if(KeyValueFor != 0)
+  {
+    sys_flag.Lcd_tog = ON;
+		sys_flag.Lcd_togold = ON;
+  }
   if(KeyValueFor > 6)
   {
+    sys_flag.Lcd_tog = OFF;
+		sys_flag.Lcd_togold = OFF;
     KeyValueFor = 0;
   }
 }
   
-void Check_Key(void)
+void Check_KeyUP(void)
 {
 	if(GPIO_KEYU_F())
   {		
 		Keypress();
-    Key_Up.Start_t = systick;
     if(Key_Up.En == 1)
     {
-      if((systick - Key_Up.Start_t) > KEYDELAY)
+      if((systick - Key_Up.Start_t) > KEYDELAY1)
       {
+        temp_p ++;
 				Key_Up.Start_t = systick;
         DealKeyup();        
       }        
     }else
     {
+      Key_Up.Start_t = systick;
       Key_Up.En = 1;
     }
   }else
   {
     Key_Up.En = 0;
   }
-  
+}
+
+void Check_KeyDOWN(void)  
+{
   if(GPIO_KEYD_F())
   {
 		Keypress();
-    Key_Down.Start_t = systick;
     if(Key_Down.En == 1)
     {
-      if((systick - Key_Down.Start_t) > KEYDELAY)
+      if((systick - Key_Down.Start_t) > KEYDELAY1)
       {
+        temp_p ++;
 				Key_Down.Start_t = systick;
         DealKeydown();
       }        
     }else
     {
+      Key_Down.Start_t = systick;
       Key_Down.En = 1;
     }
   }else
   {
     Key_Down.En = 0;
   }
-  
+}
+void Check_KeyENT(void)  
+{
   if(GPIO_KEYQ_F())
   {
-		Keypress();
-    Key_Ent.Start_t = systick;
+		Keypress();    
     if(Key_Ent.En == 1)
     {
       if((systick - Key_Ent.Start_t) > KEYDELAY)
       {
+        temp_p ++;
 				Key_Ent.Start_t = systick;
         DealKeyent();
       }        
     }else
     {
+      Key_Ent.Start_t = systick;
       Key_Ent.En = 1;
     }
   }else
   {
     Key_Ent.En = 0;
-  }      
+  }     
+}  
+void Check_Key(void)
+{
+  Check_KeyUP();
+  Check_KeyDOWN();
+  Check_KeyENT();
 }
-
 void SaveTime(void)
 {
 	u8 i,NbrOfPage;
@@ -271,6 +297,7 @@ void SysPowerOn(void)
 {
 	u32 tick_rec1,tick_rec2;
 	sys_flag.Lcd_ON_OFF = ON;
+  KeyValueFor = KEYV_DE;
 	tick_rec1 = (*(vu32*) StartAddr);
 	tick_rec2 = (*(vu32*) (StartAddr+4));
 	Tick2time(tick_rec1,&Start_T);

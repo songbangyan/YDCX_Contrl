@@ -13,8 +13,8 @@
 #define		MAXNUMOFSZ	75
 #define		MAXOFRXQ	0xFF
 
-#define		KEYDELAY		20		//按键消抖时间
-#define		KEYPRE		  50
+#define		KEYDELAY		150		//按键消抖时间
+#define		KEYDELAY1		200
 #define		KEYLONG			0x40		//2S
 
 #define		KEYPRE0		0   //松开
@@ -108,11 +108,11 @@
 #define	GPIO_IO_T()			1==GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)
 #define	GPIO_IO_F()			0==GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)
 
-#define	GPIO_KEYU_T()		1==GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1)
-#define	GPIO_KEYU_F()		0==GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1)
+#define	GPIO_KEYU_T()		1==GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_0)
+#define	GPIO_KEYU_F()		0==GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_0)
 
-#define	GPIO_KEYD_T()		1==GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_0)
-#define	GPIO_KEYD_F()		0==GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_0)
+#define	GPIO_KEYD_T()		1==GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1)
+#define	GPIO_KEYD_F()		0==GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1)
 
 #define	GPIO_KEYQ_T()		1==GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_7)
 #define	GPIO_KEYQ_F()		0==GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_7)
@@ -184,7 +184,7 @@ EXT_ u16 Lcd_offcounter;			//LCD关闭计数器
 EXT_ u8 Lcd_togcount;
 EXT_ u8 Lcd_refcount;
 
-
+EXT_ u8 temp_p;
 
 /*******Init功能函数区*************/ 
 void RCC_Configuration(void);

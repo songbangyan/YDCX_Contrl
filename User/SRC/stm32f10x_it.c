@@ -142,7 +142,7 @@ void PendSVC(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void SysTickHandler(void)
+void SysTick_Handler(void)
 {
 	SysTickDeal();
 }

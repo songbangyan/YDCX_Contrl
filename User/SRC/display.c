@@ -60,7 +60,11 @@ void Display(void)
 	WriteASCII(4,ZIMU*14,' ');
 	WriteASCII(4,ZIMU*15,' ');	
 	
-	WriteASCII(6,ZIMU*1,' ');		
+
+	WriteBCD(6,ZIMU*0,(temp_p/10));
+	WriteBCD(6,ZIMU*1,(temp_p%10));
+//  WriteASCII(6,ZIMU*0,' ');		
+//  WriteASCII(6,ZIMU*1,' ');		
 	WriteASCII(6,ZIMU*2,' ');
 	WriteASCII(6,ZIMU*3,' ');
 	WriteASCII(6,ZIMU*4,' ');
@@ -113,16 +117,17 @@ void Dismain(void)
 		if(sys_flag.Lcd_ref == ON)
 		{
 			Display();
-			if(sys_flag.Lcd_tog == ON)
+			if(sys_flag.Lcd_togold == ON)
 			{
 				Distog();
-				sys_flag.Lcd_tog = OFF;
+//				sys_flag.Lcd_tog = OFF;
 			}			
 			LCDrefur();
 			sys_flag.Lcd_ref = OFF;
 		}
 	}else
 	{
+    temp_p = 0;
 		LCD_shutdown();		
 	}
 	if(sys_flag.Check_save == ON)

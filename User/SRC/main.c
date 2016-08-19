@@ -514,7 +514,8 @@ int main(void)
 
 	/* System Clocks Configuration */
 	RCC_Configuration();
-	SysTick_Configuration();
+  KEY_Init();
+	InitLCD();
 	GPIO_BEEP_OFF();
 	/* Shutdown Smart Card Port */  
 	GPIO_5V_OFF();
@@ -523,14 +524,15 @@ int main(void)
 	GPIO_ALED_OFF();
 	GPIO_ZBRST_OFF();
 	GPIO_LCDBL_ON();
-	InitLCD();
 	ClearScreen();
 	SysPowerOn();
+	SysTick_Configuration();
+  temp_p = 0;
 	/* Infinite loop */	
 	while(1)
 	{
-		Check_Key();
 		Dismain();
+		Check_Key();
 		CheckTime();
 	}
 }
