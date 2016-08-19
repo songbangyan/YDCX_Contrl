@@ -146,8 +146,9 @@ typedef struct
 	unsigned char Lcd_ON_OFF:1;  //LCD是否显示的开关
 	unsigned char Lcd_ref:1;		//LCD刷新开关
 	unsigned char Lcd_tog:1;		//LCD存在需要消隐
+	unsigned char Lcd_togold:1;		//LCD存在消隐上次状态
 	unsigned char Check_save:1;
-	unsigned char Reserved:4;
+	unsigned char Reserved:3;
 }Sys_flag;
 
 typedef struct

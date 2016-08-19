@@ -144,7 +144,6 @@ void PendSVC(void)
 *******************************************************************************/
 void SysTickHandler(void)
 {
-	systick++;
 	SysTickDeal();
 }
 

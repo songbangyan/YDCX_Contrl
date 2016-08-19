@@ -22,7 +22,13 @@ void Keypress(void)
 	if(sys_flag.Lcd_ON_OFF == OFF)
 	{
 		KeyValueFor = KEYV_DE;
-		sys_flag.Lcd_ON_OFF = ON;		
+		sys_flag.Lcd_ON_OFF = ON;
+		sys_flag.Lcd_tog = OFF;	
+		sys_flag.Lcd_togold = OFF;		
+	}else if(KeyValueFor != KEYV_DE)
+	{
+		sys_flag.Lcd_tog = ON;
+		sys_flag.Lcd_togold = ON;
 	}
 	Lcd_offcounter = 0;
 }
@@ -222,16 +228,11 @@ void SaveTime(void)
 
 void SysTickDeal(void)
 {
+	systick++;
 	if(sys_flag.Lcd_ON_OFF == ON)
 	{
-		Lcd_offcounter ++;
-		Lcd_togcount ++;
+		Lcd_offcounter ++;		
 		Lcd_refcount ++;
-		if(Lcd_togcount >= 200)
-		{
-			Lcd_togcount = 0;
-			sys_flag.Lcd_tog = ON;
-		}
 		if(Lcd_refcount >= 200)
 		{
 			Lcd_refcount = 0;
@@ -239,10 +240,25 @@ void SysTickDeal(void)
 		}
 		if(Lcd_offcounter >= 20000)
 		{
-			Lcd_offcounter = 0;
+			Lcd_offcounter = 0;			
 			KeyValueFor = KEYV_DE;
 			sys_flag.Lcd_ON_OFF = OFF;
 			sys_flag.Check_save = ON;
+		}
+	}
+	if(sys_flag.Lcd_tog == ON)
+	{
+		Lcd_togcount ++;
+		if(Lcd_togcount >= 200)
+		{
+			Lcd_togcount = 0;
+			if(sys_flag.Lcd_togold == ON)
+			{
+				sys_flag.Lcd_togold = OFF;
+			}else
+			{
+				sys_flag.Lcd_togold = ON;
+			}
 		}
 	}
 	if(systick >= 24*3600*1000)

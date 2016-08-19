@@ -108,6 +108,7 @@ void Dismain(void)
 {	
 	if(sys_flag.Lcd_ON_OFF == ON)
 	{
+		LCD_shutup();
 		RTC_Get(&Now_Time);
 		if(sys_flag.Lcd_ref == ON)
 		{
@@ -120,6 +121,9 @@ void Dismain(void)
 			LCDrefur();
 			sys_flag.Lcd_ref = OFF;
 		}
+	}else
+	{
+		LCD_shutdown();		
 	}
 	if(sys_flag.Check_save == ON)
 	{
