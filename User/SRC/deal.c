@@ -90,7 +90,7 @@ unsigned char HourDec(unsigned char hour)
 }
 unsigned char MinDec(unsigned char min)
 {
-  min++;
+  min--;
   if(min > 59)
   {
     min = 59;
@@ -151,9 +151,8 @@ void Check_KeyUP(void)
 		Keypress();
     if(Key_Up.En == 1)
     {
-      if((systick - Key_Up.Start_t) > KEYDELAY1)
+      if((systick - Key_Up.Start_t) > KEYDELAY)
       {
-        temp_p ++;
 				Key_Up.Start_t = systick;
         DealKeyup();        
       }        
@@ -175,9 +174,8 @@ void Check_KeyDOWN(void)
 		Keypress();
     if(Key_Down.En == 1)
     {
-      if((systick - Key_Down.Start_t) > KEYDELAY1)
+      if((systick - Key_Down.Start_t) > KEYDELAY)
       {
-        temp_p ++;
 				Key_Down.Start_t = systick;
         DealKeydown();
       }        
@@ -200,7 +198,6 @@ void Check_KeyENT(void)
     {
       if((systick - Key_Ent.Start_t) > KEYDELAY)
       {
-        temp_p ++;
 				Key_Ent.Start_t = systick;
         DealKeyent();
       }        
@@ -255,6 +252,7 @@ void SaveTime(void)
 void SysTickDeal(void)
 {
 	systick++;
+	systick_time++;
 	if(sys_flag.Lcd_ON_OFF == ON)
 	{
 		Lcd_offcounter ++;		
@@ -287,9 +285,9 @@ void SysTickDeal(void)
 			}
 		}
 	}
-	if(systick >= 24*3600*1000)
+	if(systick_time >= 24*3600*1000)
 	{
-		systick = 0;
+		systick_time = 0;
 	}
 }
 
@@ -302,7 +300,7 @@ void SysPowerOn(void)
 	tick_rec2 = (*(vu32*) (StartAddr+4));
 	Tick2time(tick_rec1,&Start_T);
 	Tick2time(tick_rec2,&End_T);
-	systick = 20*3600*1000;
+	systick_time = 20*3600*1000;
 }
 
 void CheckTime(void)
@@ -310,13 +308,13 @@ void CheckTime(void)
 	u32 tick1,tick2;
 	tick1 = Time2tick(&Start_T);
 	tick2 = Time2tick(&End_T);
-	if((tick1<(systick/1000))&&(tick2>(systick/1000)))
+	if((tick1 < (systick_time/1000))||(tick2 > (systick_time/1000)))
 	{
-		GPIO_INS_OFF();
+		GPIO_5V_ON();
 	}
 	else
 	{
-		GPIO_INS_ON();
+		GPIO_5V_OFF();
 	}
 }
 

@@ -14,8 +14,6 @@
 #define		MAXOFRXQ	0xFF
 
 #define		KEYDELAY		150		//按键消抖时间
-#define		KEYDELAY1		200
-#define		KEYLONG			0x40		//2S
 
 #define		KEYPRE0		0   //松开
 #define		KEYPRE1		1   //1次
@@ -167,6 +165,7 @@ EXT_  HZ_TypeDef HZ1[];
 EXT_  SZ_TypeDef SZ1[];
 
 EXT_ volatile unsigned int systick;	
+EXT_ volatile unsigned int systick_time;	
 EXT_ Sys_flag sys_flag;
 EXT_ Time_t Now_Time;
 EXT_ Time_t Start_T;
@@ -175,16 +174,15 @@ EXT_ Time_t End_T;
 
 EXT_ u8	LCD_old[8][128];
 
-EXT_ Key_Value Key_Up;
-EXT_ Key_Value Key_Down;
-EXT_ Key_Value Key_Ent;
+EXT_ volatile Key_Value Key_Up;
+EXT_ volatile Key_Value Key_Down;
+EXT_ volatile Key_Value Key_Ent;
 EXT_ u8 KeyValueFor;
 
 EXT_ u16 Lcd_offcounter;			//LCD关闭计数器 
 EXT_ u8 Lcd_togcount;
 EXT_ u8 Lcd_refcount;
 
-EXT_ u8 temp_p;
 
 /*******Init功能函数区*************/ 
 void RCC_Configuration(void);

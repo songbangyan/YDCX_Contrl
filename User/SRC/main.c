@@ -527,7 +527,6 @@ int main(void)
 	ClearScreen();
 	SysPowerOn();
 	SysTick_Configuration();
-  temp_p = 0;
 	/* Infinite loop */	
 	while(1)
 	{

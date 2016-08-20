@@ -10,7 +10,7 @@ unsigned char RTC_Set(unsigned char hour,unsigned char min,unsigned char sec)
 	seccount+=(u32)min*60; //分钟秒钟数
 //	seccount+=sec;//最后的秒钟加上去
 	//设置时钟
-	systick = seccount*1000;
+	systick_time = seccount*1000;
 	return 1;
 }
 //得到当前的时间
@@ -18,7 +18,7 @@ unsigned char RTC_Set(unsigned char hour,unsigned char min,unsigned char sec)
 unsigned char RTC_Get(Time_t *rtc_real)
 {
 	unsigned int seccount=0;
-	seccount = systick/1000;//获取秒计数器的值
+	seccount = systick_time/1000;//获取秒计数器的值
 	rtc_real->hour=seccount/3600; //小时
 	rtc_real->min=(seccount%3600)/60; //分钟
 	rtc_real->sec=(seccount%60); //秒钟
